@@ -4,9 +4,7 @@ import { AWS_REGIONS, FLY_REGIONS } from 'shared-data'
 import type { components } from 'data/api'
 
 export const AWS_REGIONS_DEFAULT =
-  process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod'
-    ? AWS_REGIONS.SOUTHEAST_ASIA
-    : AWS_REGIONS.EAST_US_2
+  process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' ? AWS_REGIONS.SOUTHEAST_ASIA : AWS_REGIONS.EAST_US
 
 // TO DO, change default to US region for prod
 export const FLY_REGIONS_DEFAULT = FLY_REGIONS.SOUTHEAST_ASIA
@@ -51,7 +49,7 @@ export const PROVIDERS = {
 } as const
 
 export const PROJECT_STATUS: {
-  [key: string]: components['schemas']['project_status']
+  [key: string]: components['schemas']['ProjectDetailResponse']['status']
 } = {
   INACTIVE: 'INACTIVE',
   ACTIVE_HEALTHY: 'ACTIVE_HEALTHY',
