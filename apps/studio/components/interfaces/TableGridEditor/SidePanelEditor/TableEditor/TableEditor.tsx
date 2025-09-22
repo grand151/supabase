@@ -30,7 +30,7 @@ import ActionBar from '../ActionBar'
 import type { ForeignKey } from '../ForeignKeySelector/ForeignKeySelector.types'
 import { formatForeignKeys } from '../ForeignKeySelector/ForeignKeySelector.utils'
 import type { ColumnField } from '../SidePanelEditor.types'
-import SpreadsheetImport from '../SpreadsheetImport/SpreadsheetImport'
+import { SpreadsheetImport } from '../SpreadsheetImport/SpreadsheetImport'
 import ColumnManagement from './ColumnManagement'
 import { ForeignKeysManagement } from './ForeignKeysManagement/ForeignKeysManagement'
 import HeaderTitle from './HeaderTitle'
@@ -72,7 +72,7 @@ export interface TableEditorProps {
   updateEditorDirty: () => void
 }
 
-const TableEditor = ({
+export const TableEditor = ({
   table,
   isDuplicating,
   visible = false,
@@ -85,7 +85,7 @@ const TableEditor = ({
   const { data: org } = useSelectedOrganizationQuery()
   const { selectedSchema } = useQuerySchemaState()
   const isNewRecord = isUndefined(table)
-  const realtimeEnabled = useIsFeatureEnabled('realtime:all')
+  const { realtimeAll: realtimeEnabled } = useIsFeatureEnabled(['realtime:all'])
   const { mutate: sendEvent } = useSendEventMutation()
 
   const [params, setParams] = useUrlState()
@@ -187,6 +187,10 @@ const TableEditor = ({
   const onSaveChanges = (resolve: any) => {
     if (tableFields) {
       const errors: any = validateFields(tableFields)
+      if (errors.name) {
+        toast.error(errors.name)
+      }
+
       if (errors.columns) {
         toast.error(errors.columns)
       }
@@ -312,6 +316,7 @@ const TableEditor = ({
           }}
           size="medium"
         />
+
         {tableFields.isRLSEnabled ? (
           <Admonition
             type="default"
@@ -351,6 +356,7 @@ const TableEditor = ({
             />
           </Admonition>
         )}
+
         {realtimeEnabled && (
           <Checkbox
             id="enable-realtime"
@@ -375,7 +381,9 @@ const TableEditor = ({
           />
         )}
       </SidePanel.Content>
+
       <SidePanel.Separator />
+
       <SidePanel.Content className="space-y-10 py-6">
         {!isDuplicating && (
           <ColumnManagement
@@ -450,5 +458,3 @@ const TableEditor = ({
     </SidePanel>
   )
 }
-
-export default TableEditor

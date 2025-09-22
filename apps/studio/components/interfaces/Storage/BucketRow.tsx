@@ -1,13 +1,13 @@
-import { useState } from 'react'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { Columns3, Edit2, MoreVertical, Trash, XCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
 
+import { DeleteBucketModal } from 'components/interfaces/Storage/DeleteBucketModal'
+import { EditBucketModal } from 'components/interfaces/Storage/EditBucketModal'
+import { EmptyBucketModal } from 'components/interfaces/Storage/EmptyBucketModal'
 import type { Bucket } from 'data/storage/buckets-query'
-import { useAsyncCheckProjectPermissions } from 'hooks/misc/useCheckPermissions'
-import EditBucketModal from 'components/interfaces/Storage/EditBucketModal'
-import DeleteBucketModal from 'components/interfaces/Storage/DeleteBucketModal'
-import EmptyBucketModal from 'components/interfaces/Storage/EmptyBucketModal'
+import { useAsyncCheckPermissions } from 'hooks/misc/useCheckPermissions'
 import {
   Badge,
   Button,
@@ -28,11 +28,8 @@ export interface BucketRowProps {
   isSelected: boolean
 }
 
-const BucketRow = ({ bucket, projectRef = '', isSelected = false }: BucketRowProps) => {
-  const { can: canUpdateBuckets } = useAsyncCheckProjectPermissions(
-    PermissionAction.STORAGE_WRITE,
-    '*'
-  )
+export const BucketRow = ({ bucket, projectRef = '', isSelected = false }: BucketRowProps) => {
+  const { can: canUpdateBuckets } = useAsyncCheckPermissions(PermissionAction.STORAGE_WRITE, '*')
   const [modal, setModal] = useState<string | null>(null)
   const onClose = () => setModal(null)
 
@@ -118,5 +115,3 @@ const BucketRow = ({ bucket, projectRef = '', isSelected = false }: BucketRowPro
     </div>
   )
 }
-
-export default BucketRow

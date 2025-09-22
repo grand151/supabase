@@ -17,7 +17,8 @@ import { useDatabaseExtensionsQuery } from 'data/database-extensions/database-ex
 import { useSendEventMutation } from 'data/telemetry/send-event-mutation'
 import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 import { useSelectedProjectQuery } from 'hooks/misc/useSelectedProject'
-import { isAtBottom } from 'lib/helpers'
+import { BASE_PATH } from 'lib/constants'
+import { cleanPointerEventsNoneOnBody, isAtBottom } from 'lib/helpers'
 import { Button, cn, LoadingLine, Sheet, SheetContent } from 'ui'
 import { Input } from 'ui-patterns/DataInputs/Input'
 import { formatCronJobColumns } from './CronJobs.utils'
@@ -211,7 +212,7 @@ export const CronjobsTab = () => {
                       })
 
                       if (e.metaKey) {
-                        window.open(url, '_blank')
+                        window.open(`${BASE_PATH}/${url}`, '_blank')
                       } else {
                         router.push(url)
                       }
@@ -278,6 +279,7 @@ export const CronjobsTab = () => {
               setIsClosingCreateCronJobSheet(false)
               setCronJobForEditing(undefined)
               setCreateCronJobSheetShown(false)
+              cleanPointerEventsNoneOnBody(500)
             }}
             isClosing={isClosingCreateCronJobSheet}
             setIsClosing={setIsClosingCreateCronJobSheet}
