@@ -5,6 +5,8 @@ import { UIEvent, useEffect, useMemo, useRef, useState } from 'react'
 import DataGrid, { Column, DataGridHandle, Row } from 'react-data-grid'
 import { toast } from 'sonner'
 
+import type { OptimizedSearchColumns } from '@supabase/pg-meta/src/sql/studio/get-users-types'
+import type { SpecificFilterColumn } from './Users.constants'
 import { LOCAL_STORAGE_KEYS, useParams } from 'common'
 import { useIsAPIDocsSidePanelEnabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import AlertError from 'components/ui/AlertError'
@@ -91,9 +93,9 @@ export const UsersV2 = () => {
     }
   }, [showEmailPhoneColumns])
 
-  const [specificFilterColumn, setSpecificFilterColumn] = useQueryState(
+  const [specificFilterColumn, setSpecificFilterColumn] = useQueryState<SpecificFilterColumn>(
     'filter',
-    parseAsStringEnum(['id', 'email', 'phone', 'freeform']).withDefault('id')
+    parseAsStringEnum<SpecificFilterColumn>(['id', 'email', 'phone', 'freeform']).withDefault('id')
   )
   const [filterUserType, setFilterUserType] = useQueryState(
     'userType',
@@ -138,7 +140,7 @@ export const UsersV2 = () => {
   )
 
   const [columns, setColumns] = useState<Column<any>[]>([])
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(filterKeywords)
   const [selectedUser, setSelectedUser] = useState<string>()
   const [selectedUsers, setSelectedUsers] = useState<Set<any>>(new Set([]))
   const [selectedUserToDelete, setSelectedUserToDelete] = useState<User>()
@@ -187,7 +189,7 @@ export const UsersV2 = () => {
       sort: sortColumn as 'id' | 'created_at' | 'email' | 'phone',
       order: sortOrder as 'asc' | 'desc',
       ...(specificFilterColumn !== 'freeform'
-        ? { column: specificFilterColumn }
+        ? { column: specificFilterColumn as OptimizedSearchColumns }
         : { column: undefined }),
     },
     {
@@ -296,7 +298,9 @@ export const UsersV2 = () => {
         userIds.map((id) => deleteUser({ projectRef, userId: id, skipInvalidation: true }))
       )
       // [Joshen] Skip invalidation within RQ to prevent multiple requests, then invalidate once at the end
-      await Promise.all([queryClient.invalidateQueries(authKeys.usersInfinite(projectRef))])
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: authKeys.usersInfinite(projectRef) }),
+      ])
       toast.success(
         `Successfully deleted the selected ${selectedUsers.size} user${selectedUsers.size > 1 ? 's' : ''}`
       )
